@@ -2,6 +2,8 @@ const express = require("express");
 const Client = require("../../model/client");
 const bcrypt = require("bcrypt");
 const cfg = require("../../config/config");
+const verify_token = require("../../middleware/checkToken");
+const create_token = require("../../utils/createToken");
 
 const route = express.Router();
 
@@ -42,7 +44,7 @@ route.post("/registration", (req, res) => {
   });
 });
 
-route.put("/update/:id", (req, res) => {
+route.put("/update/:id", verify_token, (req, res) => {
   if (req.body.password) {
     bcrypt.hash(req.body.password, cfg.salt, (error, result) => {
       if (error)
@@ -69,6 +71,26 @@ route.put("/update/:id", (req, res) => {
       );
     });
   }
+});
+
+route.post("/login", (req, res) => {
+  Client.findOne({ username: req.body.username }, (error, result) => {
+    if (error)
+      return res.status(500).send({ output: `Erro ao localizar: ${error}` });
+    if (!result)
+      return res.status(400).send({ output: `Usuário não localizado` });
+    bcrypt.compare(req.body.password, result.password, (error, same) => {
+      if (error)
+        res.status(500).send({ output: `Erro ao validar a senha: ${error}` });
+      if (!same) return res.status(400).send({ output: `Senha inválida` });
+      const generate_token = create_token(
+        result._id,
+        result.username,
+        result.email
+      );
+      res.status(200).send({ output: "Autenticado", token: generate_token });
+    });
+  });
 });
 
 route.delete("/delete/:id", (req, res) => {
