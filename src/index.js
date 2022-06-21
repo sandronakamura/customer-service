@@ -7,6 +7,9 @@ const cfg = require('./config/config');
 const clientRoutes =  require('./routes/client/client')
 
 const app = express();
+app.use(express.json());
+
+mongoose.connect(cfg.db_path, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.use('/clients', clientRoutes);
 
