@@ -11,7 +11,7 @@ const check_token = (req, res, next) => {
     req.data = {
       id: result.id,
       username: result.username,
-      email: result.email,
+      apikey: result.apikey,
     };
     next();
   });

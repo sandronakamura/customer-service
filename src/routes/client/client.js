@@ -2,6 +2,7 @@ const express = require("express");
 const Client = require("../../model/client");
 const bcrypt = require("bcrypt");
 const cfg = require("../../config/config");
+const { v4: uuidv4 } = require("uuid");
 const verify_token = require("../../middleware/checkToken");
 const create_token = require("../../utils/createToken");
 
@@ -28,6 +29,7 @@ route.post("/registration", (req, res) => {
         .status(500)
         .send({ output: `Erro ao gerar hash senha: ${error}` });
     req.body.password = result;
+    req.body.apikey = uuidv4();
 
     const data = new Client(req.body);
 
@@ -86,7 +88,7 @@ route.post("/login", (req, res) => {
       const generate_token = create_token(
         result._id,
         result.username,
-        result.email
+        result.apikey
       );
       res.status(200).send({ output: "Autenticado", token: generate_token });
     });
