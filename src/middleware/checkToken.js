@@ -9,9 +9,8 @@ const check_token = (req, res, next) => {
     if (error)
       return res.status(401).send({ output: `Token inválido: ${error}` });
     req.data = {
-      id: result.id,
-      username: result.username,
-      email: result.email,
+      apikey: result.apikey,
+      username: result.username
     };
     next();
   });

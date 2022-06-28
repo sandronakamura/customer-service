@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 const cfg = require("../config/config");
 
-const create_token = (id, username, email) => {
+const create_token = (apikey, username) => {
   return jwt.sign(
-    { id: id, username: username, email: email },
+    { apikey: apikey, username: username},
     cfg.jwt_secret,
     { expiresIn: cfg.jwt_expires }
   );

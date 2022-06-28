@@ -107,22 +107,32 @@ route.post("/login", (req, res) => {
     bcrypt.compare(req.body.password, result.password, (error, same) => {
       if (error)
         res.status(500).send({ output: `Erro ao validar a senha: ${error}` });
-      if (!same) return res.status(400).send({ output: `Senha inválida` });
+      if (!same) return res.status(400).send({ output: `Usuário ou senha inválidos` });
       const generate_token = create_token(
-        result._id,
-        result.username,
-        result.apikey
+        result.apikey,
+        result.username
+  
       );
 
       createSession({
         output: "Autenticado",
         token: generate_token,
         apikey: result.apikey,
+        email: result.email,
+        fullname: result.fullname,
+        telephone: result.telephone,
+        registrationdate:  result.registrationdate,
+        username: result.username
       });
       res.send({
         output: "Autenticado",
         token: generate_token,
         apikey: result.apikey,
+        email: result.email,
+        fullname: result.fullname,
+        telephone: result.telephone,
+        registrationdate:  result.registrationdate,
+        username: result.username
       });
     
     });
