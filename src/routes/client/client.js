@@ -5,8 +5,30 @@ const cfg = require("../../config/config");
 const { v4: uuidv4 } = require("uuid");
 const verify_token = require("../../middleware/checkToken");
 const create_token = require("../../utils/createToken");
+const amqp = require("amqplib");
 
 const route = express.Router();
+
+var channel, connection;
+
+connect();
+
+async function connect() {
+  try {
+    const amqpServer = "amqp://localhost";
+    connection = await amqp.connect(amqpServer);
+    channel = await connection.createChannel();
+    await channel.assertQueue("ClientData");
+  } catch (ex) {
+    console.error(ex);
+  }
+}
+
+const createSession = async (user) => {
+  await channel.sendToQueue("ClientData", Buffer.from(JSON.stringify(user)));
+  await channel.close();
+  await connection.close();
+};
 
 route.get("/", (req, res) => {
   Client.find((error, data) => {
@@ -76,6 +98,7 @@ route.put("/update/:id", verify_token, (req, res) => {
 });
 
 route.post("/login", (req, res) => {
+  connect();
   Client.findOne({ username: req.body.username }, (error, result) => {
     if (error)
       return res.status(500).send({ output: `Erro ao localizar: ${error}` });
@@ -90,7 +113,18 @@ route.post("/login", (req, res) => {
         result.username,
         result.apikey
       );
-      
+
+      createSession({
+        output: "Autenticado",
+        token: generate_token,
+        apikey: result.apikey,
+      });
+      res.send({
+        output: "Autenticado",
+        token: generate_token,
+        apikey: result.apikey,
+      });
+    
     });
   });
 });
