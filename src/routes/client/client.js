@@ -124,7 +124,7 @@ route.post("/login", (req, res) => {
         token: generate_token,
         apikey: result.apikey,
       });
-      res.status(200).send({ output: "Autenticado", token: generate_token });
+    
     });
   });
 });
