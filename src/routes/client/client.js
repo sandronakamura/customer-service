@@ -90,7 +90,7 @@ route.post("/login", (req, res) => {
         result.username,
         result.apikey
       );
-      res.status(200).send({ output: "Autenticado", token: generate_token });
+      
     });
   });
 });
